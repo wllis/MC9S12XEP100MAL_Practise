@@ -1,21 +1,26 @@
-/********************************************
-龙丘MC9S12XEP100多功能开发板 
-Designed by Chiu Sir
-E-mail:chiusir@163.com
-软件版本:V1.1
-最后更新:2009年4月12日
-相关信息参考下列地址：
-博客：  http://longqiu.21ic.org
-淘宝店：http://shop36265907.taobao.com
-------------------------------------
-Code Warrior 5.0
-Target : MC9S12XEP100
-Crystal: 16.000Mhz
-busclock:16.000MHz
-pllclock:32.000MHz
-============================================*/
+
+/**********************(c) Copyright 20017-2018, CIDI **********************
+	File： LCD_12864.c
+	Description：  12864 LCD液晶模块配置文件
+    Code Warrior 5.0
+    Target : MC9S12XEP100
+    Crystal: 16.000Mhz
+    busclock:16.000MHz
+    pllclock:32.000MHz
+
+    硬件平台 龙丘MC9S12XEP100多功能开发板 
+
+    Author：wllis
+    Date: 04/17/2018
+      
+    Note:
+  
+  Version: 1.0
+
+**************************************************************************/
+
 #include "derivative.h"
-#include "LQ12864.h"
+#include "LCD_12864.h"
 
 #define LCD_Data_Dir	DDRA
 #define LCD_Data_Out	PORTA
@@ -295,57 +300,6 @@ const byte F8X16[]=
   0x00,0x06,0x01,0x01,0x02,0x02,0x04,0x04,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//~94
 
 };
-//数据水平，字节垂直
-const byte longqiu96x64[768] = { 
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X80,0X80,0X80,0XC0,0XC0,0XC0,
-  0XC0,0XC0,0X60,0X60,0X60,0X60,0X60,0X70,0X70,0X70,0X30,0X30,0X30,0X30,0X30,0X30,
-  0X30,0X30,0X30,0X30,0X30,0X30,0X30,0X70,0X70,0X60,0X60,0X60,0X60,0X60,0XE0,0XC0,
-  0XC0,0XC0,0XC0,0X80,0X80,0X80,0X80,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X80,0X80,0XC0,0XE0,0X60,0X30,
-  0X38,0X18,0X1C,0X0C,0X0E,0X06,0X06,0X03,0X03,0X03,0X01,0X01,0X01,0X01,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X80,0XC0,0XC0,0X80,0X00,0X00,0X00,0X00,0X00,0X80,0XC0,0XE0,0XE0,0XE0,0X60,0X60,
-  0XE0,0XE0,0XC0,0X81,0X01,0X01,0X03,0X03,0X03,0X07,0X06,0X0E,0X0C,0X1C,0X18,0X38,
-  0X30,0X70,0X60,0XC0,0XC0,0X80,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X80,0XC0,0XF0,0X38,0X9C,0X8E,0XC7,0XC3,0XE1,0XF1,0XB0,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0XC0,0XE0,0XF0,0X70,0X78,0XF0,0XF0,0XE0,
-  0X80,0X30,0XF8,0XF8,0XF8,0XF8,0X1C,0X3C,0XFC,0XF8,0XF0,0X00,0XF0,0XF8,0XFC,0XFC,
-  0XCF,0XCF,0XFF,0XFF,0XFC,0XF8,0X70,0XFC,0XFF,0XFF,0XFF,0X0F,0X01,0X70,0X70,0X30,
-  0X00,0XFF,0XFF,0XFF,0XFF,0XFC,0X00,0XE0,0XE0,0XEE,0XEE,0X0E,0X00,0XC0,0XC0,0X80,
-  0X80,0X00,0X00,0X00,0X01,0X03,0X03,0X06,0X0C,0X3C,0X70,0XE0,0XC0,0X00,0X00,0X00,
-  0X00,0XF0,0XFE,0X1F,0X03,0X00,0X00,0X01,0X01,0X01,0X03,0X0F,0X1F,0X7F,0XFE,0XFC,
-  0XF0,0XE0,0X80,0X80,0X86,0XFE,0XFC,0XF0,0X87,0X1F,0X1E,0X78,0XF8,0XF8,0X7D,0X7F,
-  0X1F,0X20,0X3F,0X3F,0X3F,0X3F,0X30,0X00,0X3F,0X3F,0X3F,0X7C,0XF0,0XF9,0XFF,0XFF,
-  0XFF,0XCF,0X9F,0XFF,0XFB,0XF8,0X70,0X03,0X0F,0X1F,0X1F,0X3E,0X3C,0X36,0X76,0X7E,
-  0X7E,0XFF,0XFF,0XEF,0X47,0X61,0XFC,0XFF,0XFF,0XCF,0XE3,0XF8,0XFE,0XFF,0X9F,0X87,
-  0XE3,0XF0,0XFE,0XFC,0X3C,0X0C,0X00,0X00,0X00,0X00,0X00,0X01,0X07,0X7F,0XFC,0X80,
-  0X00,0X1F,0XFF,0XF0,0X80,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X03,
-  0X1F,0X1F,0X0F,0X0F,0X07,0X03,0X03,0X01,0X00,0X00,0X00,0X00,0X00,0X00,0XC0,0XC0,
-  0X00,0X00,0X00,0XC0,0XC0,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X01,0X03,0X03,
-  0X03,0X03,0X03,0X01,0X01,0X00,0X00,0X80,0X00,0X00,0X00,0X00,0X00,0X80,0X80,0XC0,
-  0XC0,0X80,0X01,0X01,0X00,0X00,0X00,0X00,0X00,0X00,0X01,0X03,0X03,0X03,0X07,0X0F,
-  0X0F,0X0F,0X01,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0XC0,0XFE,0X7F,0X03,
-  0X00,0X00,0X00,0X03,0X07,0X1E,0X38,0X70,0XE0,0XC0,0X80,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X06,0X86,0X82,0XC2,0X62,0X3A,0X8F,0X43,
-  0XFA,0XEE,0X32,0X3A,0X1A,0X02,0X02,0X02,0X00,0X00,0X00,0X00,0X00,0X1C,0X1C,0X1C,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X03,0XFF,0XFF,0X09,0X09,0X09,0X09,0XF9,0XF9,0X09,
-  0X08,0X08,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X80,0XC0,0XC0,0X60,0X38,0X1C,0X0F,0X07,0X01,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X01,0X01,0X03,0X07,0X0E,0X0C,0X18,
-  0X18,0X30,0X30,0X60,0X60,0XC0,0XC2,0XC3,0X83,0X83,0X81,0X00,0X00,0X00,0X00,0X00,
-  0X01,0X03,0X03,0X07,0X07,0X06,0X0E,0X06,0X07,0X03,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,0X03,
-  0X03,0X07,0X07,0X07,0X06,0X06,0X80,0X80,0X80,0XC0,0XC0,0XE0,0X60,0X70,0X30,0X38,
-  0X18,0X1C,0X0E,0X06,0X07,0X03,0X01,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X01,0X01,0X01,0X03,0X03,0X03,0X07,0X06,0X06,
-  0X06,0X06,0X0E,0X0C,0X0C,0X0C,0X0C,0X0C,0X0C,0X1C,0X1C,0X1C,0X18,0X18,0X18,0X18,
-  0X18,0X18,0X18,0X18,0X1C,0X1C,0X1C,0X0C,0X0C,0X0C,0X0C,0X0C,0X0C,0X0C,0X06,0X06,
-  0X06,0X06,0X06,0X03,0X03,0X03,0X01,0X01,0X01,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-  0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
-};
 const byte LIBLOGO60x58[480] = { 
   0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
   0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
@@ -378,113 +332,126 @@ const byte LIBLOGO60x58[480] = {
   0X00,0X03,0X07,0X0F,0X0F,0X07,0X01,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
   0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,0X00,
 }; 
+/*******************************************************************************
+* Function Name  : LCD_WrDat
+* Description    : 液晶模块写数据函数
+* Input          : 字节型数据
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void LCD_WrDat(byte data)
 {
-	byte i=8;
-	LCD_Data_Out &= ~LCD_CS;
-	LCD_Data_Out |= LCD_CD;
-  LCD_Data_Out&=~LCD_SCL;
-  //asm("nop");    
-  while(i--)
-  {
-    if(data&0x80){LCD_Data_Out|=LCD_SDA;}
-    else{LCD_Data_Out&=~LCD_SDA;}
-    LCD_Data_Out|=LCD_SCL; 
-    asm("nop");
-		//asm("nop");            
-    LCD_Data_Out&=~LCD_SCL;    
-    data<<=1;    
-  }
-	LCD_Data_Out |= LCD_CS; 
+    byte i=8;
+    LCD_Data_Out &= ~LCD_CS;
+    LCD_Data_Out |= LCD_CD;
+    LCD_Data_Out&=~LCD_SCL;
+    //asm("nop");    
+    while(i--)
+    {
+        if(data&0x80){LCD_Data_Out|=LCD_SDA;}
+        else{LCD_Data_Out&=~LCD_SDA;}
+        LCD_Data_Out|=LCD_SCL; 
+        asm("nop");
+        //asm("nop");            
+        LCD_Data_Out&=~LCD_SCL;    
+        data<<=1;    
+    }
+    LCD_Data_Out |= LCD_CS; 
 }
+/*******************************************************************************
+* Function Name  : LCD_WrCmd
+* Description    : 液晶模块写命令函数
+* Input          : 字节型命令
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void LCD_WrCmd(byte cmd)
 {
-	byte i=8;
-	
-	LCD_Data_Out &= ~LCD_CS;
-	LCD_Data_Out &= ~LCD_CD;
-  LCD_Data_Out&=~LCD_SCL;
-  //asm("nop");   
-  while(i--)
-  {
-    if(cmd&0x80){LCD_Data_Out|=LCD_SDA;}
-    else{LCD_Data_Out&=~LCD_SDA;}
-    LCD_Data_Out|=LCD_SCL;
-    asm("nop");
-		//asm("nop");             
-    LCD_Data_Out&=~LCD_SCL;    
-    cmd<<=1;   
-  } 	
-	LCD_Data_Out |= LCD_CS; 
+    byte i=8;
+
+    LCD_Data_Out &= ~LCD_CS;
+    LCD_Data_Out &= ~LCD_CD;
+    LCD_Data_Out&=~LCD_SCL;
+    //asm("nop");   
+    while(i--)
+    {
+        if(cmd&0x80){LCD_Data_Out|=LCD_SDA;}
+        else{LCD_Data_Out&=~LCD_SDA;}
+        LCD_Data_Out|=LCD_SCL;
+        asm("nop");
+        //asm("nop");             
+        LCD_Data_Out&=~LCD_SCL;    
+        cmd<<=1;   
+    } 	
+    LCD_Data_Out |= LCD_CS; 
 }
 void LCD_Set_Pos(byte x, byte y)
 { 
-  LCD_WrCmd(0xb0+y);
-  LCD_WrCmd(((x&0xf0)>>4)|0x10);
-  LCD_WrCmd((x&0x0f)|0x01); 
+    LCD_WrCmd(0xb0+y);
+    LCD_WrCmd(((x&0xf0)>>4)|0x10);
+    LCD_WrCmd((x&0x0f)|0x01); 
 } 
 void LCD_Fill(byte bmp_data)
 {
-	byte y,x;
-	
-	for(y=0;y<8;y++)
-	{
-		LCD_WrCmd(0xb0+y);
-		LCD_WrCmd(0x01);
-		LCD_WrCmd(0x10);
-		for(x=0;x<X_WIDTH;x++)
-			LCD_WrDat(bmp_data);
-	}
+    byte y,x;
+
+    for(y=0;y<8;y++)
+    {
+        LCD_WrCmd(0xb0+y);
+        LCD_WrCmd(0x01);
+        LCD_WrCmd(0x10);
+        for(x=0;x<X_WIDTH;x++)
+        LCD_WrDat(bmp_data);
+    }
 }
 void LCD_CLS(void)
 {
-	byte y,x;	
-	for(y=0;y<8;y++)
-	{
-		LCD_WrCmd(0xb0+y);
-		LCD_WrCmd(0x01);
-		LCD_WrCmd(0x10); 
-		for(x=0;x<X_WIDTH;x++)
-			LCD_WrDat(0);
-	}
+    byte y,x;	
+    for(y=0;y<8;y++)
+    {
+        LCD_WrCmd(0xb0+y);
+        LCD_WrCmd(0x01);
+        LCD_WrCmd(0x10); 
+        for(x=0;x<X_WIDTH;x++)
+        LCD_WrDat(0);
+    }
 }
 void LCD_DLY_ms(word ms)
 {                         
-  word a;
-  while(ms)
-  {
-    a=1335;
-    while(a--);
-    ms--;
-  }
-  return;
+    word a;
+    while(ms)
+      {
+        a=1335;
+        while(a--);
+        ms--;
+    }
+    return;
 }
 
 void LCD_Init(void)        
 {
-	LCD_Data_Dir |= 0xff;
-	LCD_Data_Out |= LCD_SCL+LCD_CS;	//预制SLK和SS为高电平   	
-	
-	LCD_Data_Out &= ~LCD_RST;
-	LCD_DLY_ms(50);
-	LCD_Data_Out |= LCD_RST;
-	LCD_DLY_ms(20); 	
-	LCD_WrCmd(0xaf);	//0xaf  LCD On
-	LCD_WrCmd(0x2f);	//0x2f  设置上电控制模式  	
-	LCD_WrCmd(0x60);	//0x81  电量设置模式（显示亮度）
-	LCD_WrCmd(0x10);	//指令数据0x0000~0x003f  	
-	LCD_WrCmd(0x24);	//0x24  V5内部电压调节电阻设置
-	LCD_WrCmd(0xa2);	//0xa2 5V,0xa1 3V3     LCD偏压设置   	
-	LCD_WrCmd(0xc0);	//0xc8 正常,0xc0 倒置  Com 扫描方式设置
-	LCD_WrCmd(0xa1);	//0xa0 正常,0xa1 反向  Segment方向选择
-	LCD_WrCmd(0xa4);	//0xa4  全屏点亮/变暗指令
-	LCD_WrCmd(0xa6);	//0xa6  正向反向显示控制指令   	
-	LCD_WrCmd(0xac);	//0xac  关闭静态指示器
-	LCD_WrCmd(0x00);	//指令数据    	
-	LCD_WrCmd(0x40+32);	//0x40+32	设置显示起始行对应RAM
-	LCD_Fill(0x00);  //初始清屏
-	LCD_Set_Pos(0,0); 
-	
+    LCD_Data_Dir |= 0xff;
+    LCD_Data_Out |= LCD_SCL+LCD_CS;	//预制SLK和SS为高电平   	
+    
+    LCD_Data_Out &= ~LCD_RST;
+    LCD_DLY_ms(50);
+    LCD_Data_Out |= LCD_RST;
+    LCD_DLY_ms(20); 	
+    LCD_WrCmd(0xaf);	//0xaf  LCD On
+    LCD_WrCmd(0x2f);	//0x2f  设置上电控制模式  	
+    LCD_WrCmd(0x60);	//0x81  电量设置模式（显示亮度）
+    LCD_WrCmd(0x10);	//指令数据0x0000~0x003f  	
+    LCD_WrCmd(0x24);	//0x24  V5内部电压调节电阻设置
+    LCD_WrCmd(0xa2);	//0xa2 5V,0xa1 3V3     LCD偏压设置   	
+    LCD_WrCmd(0xc0);	//0xc8 正常,0xc0 倒置  Com 扫描方式设置
+    LCD_WrCmd(0xa1);	//0xa0 正常,0xa1 反向  Segment方向选择
+    LCD_WrCmd(0xa4);	//0xa4  全屏点亮/变暗指令
+    LCD_WrCmd(0xa6);	//0xa6  正向反向显示控制指令   	
+    LCD_WrCmd(0xac);	//0xac  关闭静态指示器
+    LCD_WrCmd(0x00);	//指令数据    	
+    LCD_WrCmd(0x40+32);	//0x40+32	设置显示起始行对应RAM
+    LCD_Fill(0x00);  //初始清屏
+    LCD_Set_Pos(0,0); 	
 } 
 //==============================================================
 //函数名： void LCD_PutPixel(byte x,byte y)
@@ -494,14 +461,14 @@ void LCD_Init(void)
 //==============================================================
 void LCD_PutPixel(byte x,byte y)
 {
-	byte data1;  //data1当前点的数据 
-	 
-  LCD_Set_Pos(x,y); 
-	data1 = 0x01<<(y%8); 	
-	LCD_WrCmd(0xb0+(y>>3));
-	LCD_WrCmd(((x&0xf0)>>4)|0x10);
-	LCD_WrCmd((x&0x0f)|0x00);
-	LCD_WrDat(data1); 	 	
+    byte data1;  //data1当前点的数据 
+    
+    LCD_Set_Pos(x,y); 
+    data1 = 0x01<<(y%8); 	
+    LCD_WrCmd(0xb0+(y>>3));
+    LCD_WrCmd(((x&0xf0)>>4)|0x10);
+    LCD_WrCmd((x&0x0f)|0x00);
+    LCD_WrDat(data1); 	 	
 }
 //==============================================================
 //函数名： void LCD_Rectangle(byte x1,byte y1,
@@ -513,20 +480,20 @@ void LCD_PutPixel(byte x,byte y)
 //==============================================================
 void LCD_Rectangle(byte x1,byte y1,byte x2,byte y2,byte gif)
 {
-	byte n; 
+    byte n; 
 		
-	LCD_Set_Pos(x1,y1>>3);
-	for(n=x1;n<=x2;n++)
-	{
-		LCD_WrDat(0x01<<(y1%8)); 			
-		if(gif == 1) 	LCD_DLY_ms(50);
-	}  
-	LCD_Set_Pos(x1,y2>>3);
-  for(n=x1;n<=x2;n++)
-	{
-		LCD_WrDat(0x01<<(y2%8)); 			
-		if(gif == 1) 	LCD_DLY_ms(5);
-	}
+    LCD_Set_Pos(x1,y1>>3);
+    for(n=x1;n<=x2;n++)
+    {
+        LCD_WrDat(0x01<<(y1%8)); 			
+        if(gif == 1) 	LCD_DLY_ms(50);
+    }  
+    LCD_Set_Pos(x1,y2>>3);
+    for(n=x1;n<=x2;n++)
+    {
+        LCD_WrDat(0x01<<(y2%8)); 			
+        if(gif == 1) 	LCD_DLY_ms(5);
+    }
 	
 }  
 //==============================================================
@@ -537,17 +504,17 @@ void LCD_Rectangle(byte x1,byte y1,byte x2,byte y2,byte gif)
 //==============================================================  
 void LCD_P6x8Str(byte x,byte y,byte ch[])
 {
-  byte c=0,i=0,j=0;      
-  while (ch[j]!='\0')
-  {    
-    c =ch[j]-32;
-    if(x>122){x=0;y++;}
-    LCD_Set_Pos(x,y);    
-  	for(i=0;i<6;i++)     
-  	  LCD_WrDat(F6x8[c][i]);  
-  	x+=6;
-  	j++;
-  }
+    byte c=0,i=0,j=0;      
+    while (ch[j]!='\0')
+    {    
+        c =ch[j]-32;
+        if(x>122){x=0;y++;}
+        LCD_Set_Pos(x,y);    
+        for(i=0;i<6;i++)     
+            LCD_WrDat(F6x8[c][i]);  
+        x+=6;
+        j++;
+    }
 }
 //==============================================================
 //函数名：LCD_P8x16Str(byte x,byte y,byte *p)
@@ -557,78 +524,78 @@ void LCD_P6x8Str(byte x,byte y,byte ch[])
 //==============================================================  
 void LCD_P8x16Str(byte x,byte y,byte ch[])
 {
-  byte c=0,i=0,j=0;
-        
-  while (ch[j]!='\0')
-  {    
-    c =ch[j]-32;
-    if(x>120){x=0;y++;}
-    LCD_Set_Pos(x,y);    
-  	for(i=0;i<8;i++)     
-  	  LCD_WrDat(F8X16[c*16+i]);
-  	LCD_Set_Pos(x,y+1);    
-  	for(i=0;i<8;i++)     
-  	  LCD_WrDat(F8X16[c*16+i+8]);  
-  	x+=8;
-  	j++;
-  }
+    byte c=0,i=0,j=0;
+          
+    while (ch[j]!='\0')
+    {    
+        c =ch[j]-32;
+        if(x>120){x=0;y++;}
+        LCD_Set_Pos(x,y);    
+        for(i=0;i<8;i++)     
+            LCD_WrDat(F8X16[c*16+i]);
+        LCD_Set_Pos(x,y+1);    
+        for(i=0;i<8;i++)     
+            LCD_WrDat(F8X16[c*16+i+8]);  
+        x+=8;
+        j++;
+    }
 }
 //输出汉字字符串
 void LCD_P14x16Str(byte x,byte y,byte ch[])
 {
-	byte wm=0,ii = 0;
-	word adder=1; 
-	
-	while(ch[ii] != '\0')
-	{
-  	wm = 0;
-  	adder = 1;
-  	while(F14x16_Idx[wm] > 127)
-  	{
-  		if(F14x16_Idx[wm] == ch[ii])
-  		{
-  			if(F14x16_Idx[wm + 1] == ch[ii + 1])
-  			{
-  				adder = wm * 14;
-  				break;
-  			}
-  		}
-  		wm += 2;			
-  	}
-  	if(x>114){x=0;y++;}
-  	LCD_Set_Pos(x , y); 
-  	if(adder != 1)// 显示汉字					
-  	{
-  		LCD_Set_Pos(x , y);
-  		for(wm = 0;wm < 14;wm++)               
-  		{
-  			LCD_WrDat(F14x16[adder]);	
-  			adder += 1;
-  		}      
-  		LCD_Set_Pos(x,y + 1); 
-  		for(wm = 0;wm < 14;wm++)          
-  		{
-  			LCD_WrDat(F14x16[adder]);
-  			adder += 1;
-  		}   		
-  	}
-  	else			  //显示空白字符			
-  	{
-  		ii += 1;
-      LCD_Set_Pos(x,y);
-  		for(wm = 0;wm < 16;wm++)
-  		{
-  				LCD_WrDat(0);
-  		}
-  		LCD_Set_Pos(x,y + 1);
-  		for(wm = 0;wm < 16;wm++)
-  		{   		
-  				LCD_WrDat(0);	
-  		}
-  	}
-  	x += 14;
-  	ii += 2;
-	}
+    byte wm=0,ii = 0;
+    word adder=1; 
+    
+    while(ch[ii] != '\0')
+    {
+        wm = 0;
+        adder = 1;
+        while(F14x16_Idx[wm] > 127)
+        {
+            if(F14x16_Idx[wm] == ch[ii])
+            {
+                if(F14x16_Idx[wm + 1] == ch[ii + 1])
+                {
+                    adder = wm * 14;
+                    break;
+                }
+            }
+            wm += 2;			
+        }
+        if(x>114){x=0;y++;}
+        LCD_Set_Pos(x , y); 
+        if(adder != 1)// 显示汉字					
+        {
+            LCD_Set_Pos(x , y);
+            for(wm = 0;wm < 14;wm++)               
+            {
+                LCD_WrDat(F14x16[adder]);	
+                adder += 1;
+            }      
+            LCD_Set_Pos(x,y + 1); 
+            for(wm = 0;wm < 14;wm++)          
+            {
+                LCD_WrDat(F14x16[adder]);
+                adder += 1;
+            }   		
+        }
+        else			  //显示空白字符			
+        {
+            ii += 1;
+            LCD_Set_Pos(x,y);
+            for(wm = 0;wm < 16;wm++)
+            {
+                LCD_WrDat(0);
+            }
+            LCD_Set_Pos(x,y + 1);
+            for(wm = 0;wm < 16;wm++)
+            {   		
+                LCD_WrDat(0);	
+            }
+        }
+        x += 14;
+        ii += 2;
+    }
 }
 //输出汉字和字符混合字符串
 void LCD_Print(byte x, byte y, byte ch[])
@@ -679,20 +646,7 @@ void Draw_BMP(byte x0,byte y0,byte x1,byte y1,byte bmp[])
 	    }
 	}
 }
-void Draw_LQLogo(void)
-{ 	
-  word ii=0;
-  byte x,y;       
-  
-	for(y=0;y<8;y++)
-	{
-		LCD_Set_Pos(16,y);				
-    for(x=16;x<112;x++)
-	    {      
-	    	LCD_WrDat(longqiu96x64[ii++]);	    	
-	    }
-	}
-}
+
 void Draw_LibLogo(void)
 { 	
   word ii=0;
@@ -707,3 +661,5 @@ void Draw_LibLogo(void)
 	    }
 	}
 } 
+
+/************************** end of file *************************/
