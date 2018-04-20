@@ -4,7 +4,13 @@
  */
 
 /* Include the derivative-specific header file */
-#include <MC9S12XEP100.h>
+/* Include the derivative-specific header file */
+#ifndef _DERIVATIVE_H
+#define _DERIVATIVE_H
 
-#pragma LINK_INFO DERIVATIVE "MC9S12XEP100"
+#include <hidef.h>           
+#include <MC9S12XEQ512.h>
+#pragma LINK_INFO DERIVATIVE "mc9s12xep100" 
+
+#endif
 

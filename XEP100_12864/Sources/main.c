@@ -20,7 +20,9 @@
 #include "derivative.h"      /* derivative-specific definitions */
 #include "LCD_12864.h"
 #include "usart.h"
+#include "can.h"
 
+/******************************** DEFINES ***********************************/
 
 #define LED0     PORTB_PB0
 #define LED1     PORTB_PB1
@@ -40,7 +42,39 @@
 #define LED6_DIR DDRB_DDRB6
 #define LED7_DIR DDRB_DDRB7
 
+volatile byte C0rxdata[9][9]={""};           
+volatile byte C4rxdata[9][9]={""};
 
+
+//
+#pragma CODE_SEG __NEAR_SEG NON_BANKED 
+
+void interrupt 38  CAN0RxISR(void)
+{
+    byte length,index,rxdlr;  
+    
+    length = (CAN0RXDLR & 0x0F);
+    rxdlr=CAN0RXIDR0&0X0F;
+    for (index=0; index<length; index++)
+      C0rxdata[rxdlr][index] = *(&CAN0RXDSR0 + index); /* Get received data */
+    printp("\nCAN0 RX DATA IS:%s",C0rxdata[rxdlr]); 
+    printp("\nHello CAN0");   
+    CAN0RFLG = 0x01;   /* Clear RXF */
+}
+void interrupt 54  CAN4RxISR(void)
+{
+    byte length,index,rxdlr; 
+    
+    length = (CAN4RXDLR & 0x0F);
+    rxdlr=CAN4RXIDR0&0X0F;
+    for (index=0; index<length; index++)
+      C4rxdata[rxdlr][index] = *(&CAN4RXDSR0 + index); /* Get received data */
+    printp("\nCAN4 RX DATA IS:%s",C4rxdata[rxdlr]);   
+    printp("Hello CAN4");  
+    CAN4RFLG = 0x01;   /* Clear RXF */
+} 
+
+//#pragma CODE_SEG DEFAULT
 /*******************************************************************************
 * Function Name  : delay
 * Description    : 简单的延时函数 
@@ -113,11 +147,19 @@ static void SCI_Init(void)
 
 static void Port_Init( void )
 {
+  RDRT=0xff;          // reduce the power of T port   
+  RDRIV=0x93;         // reduce the power   of
+  
   DDRA = 0xff;  //LCD1100,PA0--4,PA67 D1D2
   PORTA= 0x00; 
 
   // 使能PORTB为输出
-  DDRB = 0xFF; 
+  DDRB=0xFF;          // set  port B bit0 as output
+  PORTB=0X00;
+  DDRT_DDRT4=1;       // set portT bit 4 as output
+  DDRP_DDRP3=1;       // reduce the power of port P3
+  RDRP_RDRP3=1;       // set portP bit 3 as output
+  
 }
 
 /*******************************************************************************
@@ -128,15 +170,20 @@ static void Port_Init( void )
 * Return         : None
 *******************************************************************************/
 void main(void)
-{
-  //byte  u8_volt,u8_cnt=0,u8_frush=168,u8_beepflag=0;   
+{  
   char  txtbuf[16]="",KBbuf[17]="",KBptr=0;
   byte  u8_zhengshu=0,u8_xiaoshu=0,u8_mintes=0,u8_key=0;
   word u16_sec=0,u16_ms=0;
-  //word u16_ioc_cnt=0,u16_tmv,u16_zheng,u16_xiao,tmT;  
-  /* put your own code here */
-    
+
+  char can0_txbuf[8] = {0x12,0x34,0x56,0x78,0x9a,0x01,0x01,0x01};
+  char can4_txbuf[8] = {0x44,0x44,0x44,0x44,0x9a,0x00,0x00,0x00};
+
     unsigned char i = 0;
+    
+    unsigned char cantx_err_flag;
+
+    CAN0_ID = 0xAAAA;
+    CAN4_ID = 0x4444;
     
     // PLL初始化
     Set_PLL_Bus_clock();
@@ -150,6 +197,13 @@ void main(void)
     // 初始化LCD模块
     LCD_Init();
     
+    // CAN0 初始化
+    InitCAN0();
+
+    // CAN4 初始化
+    InitCAN4();
+    
+    
     delay(300);
 
     LCD_P6x8Str(22,5,"Hello world!");
@@ -159,19 +213,18 @@ void main(void)
     // 开启中断
 	  EnableInterrupts;
 	
+    for(;;) 
+    {   
+        for( i=0; i<8; i++ )
+        {
+            PORTB = 0xFF;
+            printp("Hello CIDI!\n");
+            delay(4000);
+            PORTB = ~(0x01<<i);
+            delay(2000);
 
-
-  for(;;) 
-  {
-    
-    for( i=0; i<8; i++ )
-    {
-      PORTB = 0xFF;
-      putstr("Hello world!\n");
-      delay(600);
-      PORTB = ~(0x01<<i);
-      delay(400);
-    }
-  } /* loop forever */
-  /* please make sure that you never leave main */
+            cantx_err_flag = CAN0SendFrame(CAN0_ID,0x00,strlen(can0_txbuf),can0_txbuf);
+            cantx_err_flag = CAN4SendFrame(CAN4_ID,0x00,strlen(can4_txbuf),can4_txbuf);
+        }
+    } 
 }
