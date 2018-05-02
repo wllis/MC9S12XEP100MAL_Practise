@@ -1,10 +1,10 @@
 /**********************(c) Copyright 20017-2018, CIDI **********************
-	File£º mian.c
-	Description£º  ³õÊ¼»¯ I/O¿Ú£¬´®¿Ú£¬CAN×ÜÏß£¬ÏµÍ³Ê±ÖÓ
-                   Ö´ĞĞÈÎÎñº¯Êı
-    Ó²¼şÆ½Ì¨ ÁúÇğMC9S12XEP100¶à¹¦ÄÜ¿ª·¢°å 
+	Fileï¿½ï¿½ mian.c
+	Descriptionï¿½ï¿½  ï¿½ï¿½Ê¼ï¿½ï¿½ I/Oï¿½Ú£ï¿½ï¿½ï¿½ï¿½Ú£ï¿½CANï¿½ï¿½ï¿½ß£ï¿½ÏµÍ³Ê±ï¿½ï¿½
+                   Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    Ó²ï¿½ï¿½Æ½Ì¨ ï¿½ï¿½ï¿½ï¿½MC9S12XEP100ï¿½à¹¦ï¿½Ü¿ï¿½ï¿½ï¿½ï¿½ï¿½ 
 
-    Author£º
+    Authorï¿½ï¿½
     Date: 04/17/2018
       
     Note:
@@ -21,6 +21,10 @@
 #include "LCD_12864.h"
 #include "usart.h"
 #include "can.h"
+#include <ctype.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 /******************************** DEFINES ***********************************/
 
@@ -46,19 +50,21 @@ volatile byte C0rxdata[9][9]={""};
 volatile byte C4rxdata[9][9]={""};
 
 
+
 //
 #pragma CODE_SEG __NEAR_SEG NON_BANKED 
 
-void interrupt 38  CAN0RxISR(void)
+void interrupt VectorNumber_Vcan0rx  CAN0RxISR(void)
 {
-    byte length,index,rxdlr;  
+    byte length,index,rxdlr;
     
     length = (CAN0RXDLR & 0x0F);
     rxdlr=CAN0RXIDR0&0X0F;
     for (index=0; index<length; index++)
-      C0rxdata[rxdlr][index] = *(&CAN0RXDSR0 + index); /* Get received data */
+    C0rxdata[rxdlr][index] = *(&CAN0RXDSR0 + index); /* Get received data */
     printp("\nCAN0 RX DATA IS:%s",C0rxdata[rxdlr]); 
     printp("\nHello CAN0");   
+    PORTB = 0x00;
     CAN0RFLG = 0x01;   /* Clear RXF */
 }
 void interrupt 54  CAN4RxISR(void)
@@ -71,14 +77,15 @@ void interrupt 54  CAN4RxISR(void)
       C4rxdata[rxdlr][index] = *(&CAN4RXDSR0 + index); /* Get received data */
     printp("\nCAN4 RX DATA IS:%s",C4rxdata[rxdlr]);   
     printp("Hello CAN4");  
+    PORTB = 0x00;
     CAN4RFLG = 0x01;   /* Clear RXF */
 } 
 
 //#pragma CODE_SEG DEFAULT
 /*******************************************************************************
 * Function Name  : delay
-* Description    : ¼òµ¥µÄÑÓÊ±º¯Êı 
-* Input          : unsigned int ĞÍÊı¾İ
+* Description    : ï¿½òµ¥µï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ 
+* Input          : unsigned int ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -91,10 +98,26 @@ void delay( unsigned int Time )
       for( i=200; i>0; i-- );
     }
 }
-
+/*******************************************************************************
+* Function Name  : AD_Init
+* Description    : PLLï¿½ï¿½Ê¼ï¿½ï¿½  BUS Clock=16Mï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½ï¿½16Mï¿½ï¿½
+* Input          : none
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void AD_Init(void) 
+{     
+  ATD0CTL1=0x00;   //7:1-å¤–éƒ¨è§¦å‘,65:00-8ä½ç²¾åº¦,4:æ”¾ç”µ,3210:ch
+  ATD0CTL2=0x40;   //ç¦æ­¢å¤–éƒ¨è§¦å‘, ä¸­æ–­ç¦æ­¢    
+  ATD0CTL3=0xa0;   //å³å¯¹é½æ— ç¬¦å·,æ¯æ¬¡è½¬æ¢4ä¸ªåºåˆ—, No FIFO, Freezeæ¨¡å¼ä¸‹ç»§ç»­è½¬    
+  ATD0CTL4=0x01;   //765:é‡‡æ ·æ—¶é—´ä¸º4ä¸ªADæ—¶é’Ÿå‘¨æœŸ,ATDClock=[BusClock*0.5]/[PRS+1]
+  ATD0CTL5=0x30;   //6:0ç‰¹æ®Šé€šé“ç¦æ­¢,5:1è¿ç»­è½¬æ¢ ,4:1å¤šé€šé“è½®æµé‡‡æ ·
+  ATD0DIEN=0x00;   //ç¦æ­¢æ•°å­—è¾“å…¥   
+    
+} 
 /*******************************************************************************
 * Function Name  : Set_PLL_Bus_clock
-* Description    : PLL³õÊ¼»¯  BUS Clock=16M£¨Íâ²¿¾§Õñ16M£©
+* Description    : PLLï¿½ï¿½Ê¼ï¿½ï¿½  BUS Clock=16Mï¿½ï¿½ï¿½â²¿ï¿½ï¿½ï¿½ï¿½16Mï¿½ï¿½
 * Input          : none
 * Output         : None
 * Return         : None
@@ -105,7 +128,7 @@ void Set_PLL_Bus_clock(void)
     PLLCTL_PLLON=1;			// turn on PLL
     SYNR=0x00 | 0x01; 	// VCOFRQ[7:6];SYNDIV[5:0]
                         // fVCO= 2*fOSC*(SYNDIV + 1)/(REFDIV + 1)
-                        // fPLL= fVCO/(2 ¡Á POSTDIV) 
+                        // fPLL= fVCO/(2 ï¿½ï¿½ POSTDIV) 
                         // fBUS= fPLL/2 
                         // VCOCLK Frequency Ranges  VCOFRQ[7:6]
                         // 32MHz <= fVCO <= 48MHz    00
@@ -128,8 +151,8 @@ void Set_PLL_Bus_clock(void)
     CLKSEL_PLLSEL =1;		        //engage PLL to system; 
 }
 /*******************************************************************************
-* Function Name  : SCI_Init ÄÚ²¿º¯Êı
-* Description    : ´®¿Ú³õÊ¼»¯º¯Êı
+* Function Name  : SCI_Init ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï¿½
+* Description    : ï¿½ï¿½ï¿½Ú³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input          : none
 * Output         : None
 * Return         : None
@@ -153,7 +176,7 @@ static void Port_Init( void )
   DDRA = 0xff;  //LCD1100,PA0--4,PA67 D1D2
   PORTA= 0x00; 
 
-  // Ê¹ÄÜPORTBÎªÊä³ö
+  // Ê¹ï¿½ï¿½PORTBÎªï¿½ï¿½ï¿½
   DDRB=0xFF;          // set  port B bit0 as output
   PORTB=0X00;
   DDRT_DDRT4=1;       // set portT bit 4 as output
@@ -164,16 +187,20 @@ static void Port_Init( void )
 
 /*******************************************************************************
 * Function Name  : main
-* Description    : Ö÷º¯Êı
+* Description    : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 * Input          : none
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void main(void)
 {  
+
+  byte  u8_AD1,u8_AD2,u8_AD3,u8_AD4,u8_AD5;
   char  txtbuf[16]="",KBbuf[17]="",KBptr=0;
   byte  u8_zhengshu=0,u8_xiaoshu=0,u8_mintes=0,u8_key=0;
   word u16_sec=0,u16_ms=0;
+  word u16_tmv_AD1,u16_tmv_AD2,u16_tmv_AD3,u16_tmv_AD4,u16_tmv_AD5,
+       u16_zheng,u16_xiao;
 
   char can0_txbuf[8] = {0x12,0x34,0x56,0x78,0x9a,0x01,0x01,0x01};
   char can4_txbuf[8] = {0x44,0x44,0x44,0x44,0x9a,0x00,0x00,0x00};
@@ -185,32 +212,37 @@ void main(void)
     CAN0_ID = 0xAAAA;
     CAN4_ID = 0x4444;
     
-    // PLL³õÊ¼»¯
+    DisableInterrupts;
+    
+    // PLLï¿½ï¿½Ê¼ï¿½ï¿½
     Set_PLL_Bus_clock();
 
-    // ³õÊ¼»¯¶Ë¿Ú
+    // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ë¿ï¿½
     Port_Init();
     
-    // ´®¿Ú³õÊ¼»¯ 9600Kps
+    // ï¿½ï¿½ï¿½Ú³ï¿½Ê¼ï¿½ï¿½ 9600Kps
     SCI_Init();
 
-    // ³õÊ¼»¯LCDÄ£¿é
+    // ï¿½ï¿½Ê¼ï¿½ï¿½LCDÄ£ï¿½ï¿½
     LCD_Init();
     
-    // CAN0 ³õÊ¼»¯
+    // CAN0 ï¿½ï¿½Ê¼ï¿½ï¿½
     InitCAN0();
 
-    // CAN4 ³õÊ¼»¯
+    // CAN4 ï¿½ï¿½Ê¼ï¿½ï¿½
     InitCAN4();
+
+    // AD åˆå§‹åŒ–
+    AD_Init();
     
     
     delay(300);
 
-    LCD_P6x8Str(22,5,"Hello world!");
+    LCD_P6x8Str(22,0,"Hello world!");
 
-    LCD_P6x8Str(22,2,"hello CIDI!");
+    LCD_P6x8Str(22,1,"hello CIDI!");
 
-    // ¿ªÆôÖĞ¶Ï
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½
 	  EnableInterrupts;
 	
     for(;;) 
@@ -219,9 +251,51 @@ void main(void)
         {
             PORTB = 0xFF;
             printp("Hello CIDI!\n");
-            delay(4000);
-            PORTB = ~(0x01<<i);
             delay(2000);
+            PORTB = ~(0x01<<i);
+            delay(1000);
+
+            //----------ADCè½¬æ¢éƒ¨åˆ†---------------------------      
+            while(!ATD0STAT0_SCF);
+            u8_AD1=ATD0DR0L;
+            u8_AD2=ATD0DR1L;
+            u8_AD3=ATD0DR2L;
+            u8_AD4=ATD0DR3L;
+            u8_AD5=ATD0DR4L;
+            
+            u16_tmv_AD1=u8_AD1*100/51;
+            u16_tmv_AD2=u8_AD2*100/51;
+            u16_tmv_AD3=u8_AD3*100/51;
+            u16_tmv_AD4=u8_AD4*100/51;
+            u16_tmv_AD5=u8_AD5*100/51;
+            
+            u16_zheng=u16_tmv_AD1/100;
+            u16_xiao=u16_tmv_AD1%100;
+            sprintf(txtbuf,"AD0_Vol:%d.%02dV",u16_zheng,u16_xiao);
+            LCD_P6x8Str(2,2,txtbuf);
+            //printp("\n voltage: %d.%dV",u16_zheng,u16_xiao);
+            
+            u16_zheng=u16_tmv_AD2/100;
+            u16_xiao=u16_tmv_AD2%100;
+            sprintf(txtbuf,"AD1_Vol:%d.%02dV",u16_zheng,u16_xiao);
+            LCD_P6x8Str(2,3,txtbuf);
+            //printp("\n voltage: %d.%dV",u16_zheng,u16_xiao); 
+            
+            u16_zheng=u16_tmv_AD3/100;
+            u16_xiao=u16_tmv_AD3%100;
+            sprintf(txtbuf,"AD2_Vol:%d.%02dV",u16_zheng,u16_xiao);
+            LCD_P6x8Str(2,4,txtbuf);
+            
+            u16_zheng=u16_tmv_AD4/100;
+            u16_xiao=u16_tmv_AD4%100;
+            sprintf(txtbuf,"AD3_Vol:%d.%02dV",u16_zheng,u16_xiao);
+            LCD_P6x8Str(2,5,txtbuf);
+            
+            u16_zheng=u16_tmv_AD5/100;
+            u16_xiao=u16_tmv_AD5%100;
+            sprintf(txtbuf,"AD4_Vol:%d.%02dV",u16_zheng,u16_xiao);
+            LCD_P6x8Str(2,6,txtbuf);
+            //printp("\n voltage: %d.%dV",u16_zheng,u16_xiao);
 
             cantx_err_flag = CAN0SendFrame(CAN0_ID,0x00,strlen(can0_txbuf),can0_txbuf);
             cantx_err_flag = CAN4SendFrame(CAN4_ID,0x00,strlen(can4_txbuf),can4_txbuf);
